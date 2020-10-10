@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Test {
-	User user;
-	String id;
-	String testTitle;
-	int marks;
-	List<String> question = new ArrayList<String>();
-	List<List<String>> options = new ArrayList<List<String>>();
-	List<Integer> answer = new ArrayList<Integer>();
-	List<TestResult> testResults = new ArrayList<TestResult>();
+	private User user;
+	private String id;
+	private String testTitle;
+	private int marks;
+	private List<String> question = new ArrayList<String>();
+	private List<List<String>> options = new ArrayList<List<String>>();
+	private List<Integer> answer = new ArrayList<Integer>();
+	private List<TestResult> testResults = new ArrayList<TestResult>();
 	
 
 	public Test(User user, String id, String testTitle, int marks, List<String> question, List<List<String>> options,

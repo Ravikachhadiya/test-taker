@@ -3,11 +3,11 @@ package model;
 import java.time.LocalDateTime;
 
 public class TestResult {
-	String userName;
-	String userEmail;
-	int obtainnMarks;
-	int testMarks;
-	LocalDateTime date;
+	private String userName;
+	private String userEmail;
+	private int obtainnMarks;
+	private int testMarks;
+	private LocalDateTime date;
 	
 	public TestResult(String userName, String userEmail, int obtainnMarks, int testMarks, LocalDateTime date) {
 		super();
