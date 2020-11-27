@@ -1,5 +1,10 @@
 package service;
 
+import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,10 +14,15 @@ import java.util.Scanner;
 import model.Test;
 import model.TestResult;
 import model.User;
+import dao.TestDAO;
+import dao.TestResultDAO;
+import utility.ConnectionManager;
 
 public class TestGiver {
 
-	public void giveATest(Test test,User user) {
+	private static final String TestDAO = null;
+
+	public void giveATest(Test test,User user, int userid) throws ClassNotFoundException, SQLException, IOException {
 		
 		Scanner sc = new Scanner(System.in);
 		int sum = 0;
@@ -27,10 +37,9 @@ public class TestGiver {
 		if(start == 1) {
 			System.out.println("\n------------------ Test Started Now ------------------\n");
 			
-			
-			
 			Iterator questions = test.getQuestion().iterator();
 			Iterator<List<String>> options = test.getOptions().iterator();
+			Iterator<List<String>> optionsAnswerCheck = test.getOptions().iterator();
 			Iterator answers = test.getAnswer().iterator();		
 			
 			int i = 1;
@@ -44,15 +53,39 @@ public class TestGiver {
 				}
 				
 				System.out.print("\nAnswer : ");
-				int ans = sc.nextInt();
+				int userAnswer = sc.nextInt();
 				
-				if(String.valueOf(ans).equals(answers.next().toString())) {
+				ConnectionManager connectionManager = new ConnectionManager();
+				String sql = "SELECT options FROM options WHERE id = ?";
+				
+				PreparedStatement st = connectionManager.getConnection().prepareStatement(sql);
+				
+				st.setInt(1 , (int) answers.next());
+				
+				ResultSet rsOption = st.executeQuery();
+				connectionManager.getConnection().close();
+				
+				rsOption.next();
+				Iterator optionAnswer = optionsAnswerCheck.next().iterator();
+				int index = 0;
+				while(optionAnswer.hasNext()) {
+					index++;
+					if(rsOption.getString("options").toString().equalsIgnoreCase(optionAnswer.next().toString())){
+						break;
+					}
+				}
+				
+				System.out.println("user answer : " + userAnswer + "	server answer : " + index);
+				if(userAnswer == index) {
 					sum += (test.getMarks() / test.getAnswer().size());
 				}
 			}
 			
 			TestResult testResult = new TestResult(user.getUserName(), user.getEmailId(), sum, test.getMarks(), LocalDateTime.now());
 			test.setTestResults(testResult);
+			
+			TestResultDAO testResultDAO = new TestResultDAO();
+			testResultDAO.addTestResult(Integer.parseInt(test.getId()), sum, userid, LocalDate.now());
 			
 			List<Integer> marks = new ArrayList<Integer>();
 			marks.add(sum);
@@ -68,21 +101,15 @@ public class TestGiver {
 		
 	}
 	
-	public Test getTest(List<Test> test) {
+	public Test getTest() throws NumberFormatException, ClassNotFoundException, SQLException, IOException {
 		
 		System.out.println("\n--------------- Select your test ---------------\n");
 		System.out.print("Enter your test code : ");
 		Scanner sc = new Scanner(System.in);
 		String id = sc.nextLine();
 		
-		Iterator<Test> testList = test.iterator();
-		while(testList.hasNext()) {
-			Test tst = testList.next();
-			if(id.equalsIgnoreCase(tst.getId())){
-				return tst;
-			}
-		}
-		
-		return null;
+		TestDAO testDAO = new TestDAO();
+		Test test = testDAO.getTest(Integer.parseInt(id));
+		return test;
 	}
 }

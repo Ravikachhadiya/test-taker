@@ -1,15 +1,18 @@
 package controller;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
+import dao.UserDAO;
 import model.User;
 import utility.LoginValidation;
 
 public class LoginController {
 
 	Scanner sc = new Scanner(System.in);
-	public User login(List<User> userData) {
+	public int login(List<User> userData) throws ClassNotFoundException, IOException, SQLException {
 		
 		System.out.println("\n          --------------- ENTER YOUR LOGIN DETAILS ---------------\n");
 
@@ -19,8 +22,9 @@ public class LoginController {
 		System.out.print("Password : ");
 		String password = sc.next();
 		
-		LoginValidation loginValidation = new LoginValidation();
+		UserDAO loginDAO = new UserDAO();
 		
-		return loginValidation.loginValidation(userData, email, password);
+		
+		return loginDAO.loginUser(email.toLowerCase(), password);
 	}
 }

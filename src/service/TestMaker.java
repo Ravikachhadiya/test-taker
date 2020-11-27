@@ -1,11 +1,14 @@
 package service;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+import dao.TestDAO;
 import model.Test;
 import model.User;
 
@@ -22,9 +25,7 @@ public class TestMaker {
 		List<String> questions = new ArrayList<String>();
 		List<List<String>> options = new ArrayList<List<String>>();
 		List<Integer> answers = new ArrayList<Integer>();
-		
-		
-		
+				
 		System.out.println("\n--------------------- Make Your Test ---------------------\n");
 		
 		System.out.print("Enter Test Title : ");
@@ -70,7 +71,6 @@ public class TestMaker {
 		id = uniqueId();
 		
 		System.out.println("\n----------- Your Test Was Created Successfully -----------\n");
-		System.out.println("Your Test Id : " + id + "\n");
 		
 		test = new Test(user, id, testTitle, marks, questions, options, answers);
 		return test;
@@ -90,16 +90,19 @@ public class TestMaker {
 		return id.toString();
 	}
 	
-	public Test deleteTest(List<Test> tests, User user) {
+	public Test deleteTest(List<Test> tests, User user, int userid) throws ClassNotFoundException, SQLException, IOException {
 		
 		System.out.println("--------------------------- DELETE TEST ---------------------------");
 		
 		ShowTestDetails showTestDetails = new ShowTestDetails();
-		showTestDetails.show(user);
+		showTestDetails.show(user, userid);
 		
 		System.out.print("Enter test code : ");
 		String code = sc.next();
 		
+		
+		TestDAO testDAO = new TestDAO();
+		testDAO.testDelete(Integer.parseInt(code), userid);
 		
 		
 		Iterator<Test> testIterator = tests.iterator();
@@ -114,16 +117,3 @@ public class TestMaker {
 	}
 }
 
-
-
-//int numberOfQuestions;
-//while(true) {
-//	try {
-//		System.out.print("Enter number of questions : ");
-//		numberOfQuestions = sc.nextInt();
-//		sc.nextLine();
-//		break;
-//	}catch(Exception e) {
-//		System.out.println("       --- X -- Invalid Inputs! Please Try Again -- X ---");
-//	}
-//}

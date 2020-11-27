@@ -51,6 +51,7 @@ public class SignupController {
 		
 		if(response) {
 			user = new User(email,name, password, userType);
+			System.out.println("SignUp : True");
 			return true;
 		}
 		else {

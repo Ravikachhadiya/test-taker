@@ -1,9 +1,13 @@
 package controller;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import dao.TestDAO;
+import dao.UserDAO;
 import model.Test;
 import model.User;
 import utility.SignupValidation;
@@ -14,11 +18,14 @@ import service.TestMaker;
 import service.UpdateTest;
 
 public class Main {
-	public static void main(String args[]) {
+	public static void main(String args[]) throws ClassNotFoundException, SQLException, IOException {
+		UserDAO userDAO = new UserDAO();
+		int userid = 0;
+		
 		SignupController signupController = new SignupController();
 		LoginController loginController = new LoginController();
 		List<User> userData = new ArrayList<User>();
-		User user = null;
+		User user = new User();
 		List<Test> testList = new ArrayList<Test>();
 		Scanner sc = new Scanner(System.in);
 
@@ -44,21 +51,31 @@ public class Main {
 			switch(choiseOfLoginSignup){
 				case 1:
 					
+					int checkUserData = 0;
 					while(true) {
-						if(signupController.SignUp()) {
+						if(signupController.SignUp()) {	
+							checkUserData = userDAO.addUser(signupController.getUserList());
+							System.out.println("checkUserData : " + checkUserData);
+						}
+						if(checkUserData == 1) {
 							System.out.println("\n              ********   SUCCESSFULLY SIGNUP   ********\n");
-							userData.add(signupController.getUserList());
 							break;
 						}
 						else {
 							System.out.println("\n       --- X -- Invalid Inputs! Please Try Again -- X ---\n");
+							break;
 						}
 					}
 					break;
 				case 2:
-						user = loginController.login(userData);
-						if(user != null) {
+						userid = loginController.login(userData);
+						
+						if(userid != 0) {
+							user.setEmailId(userDAO.userInfo(userid).getEmailId());
+							user.setUserName(userDAO.userInfo(userid).getUserName());
+							user.setUserType(userDAO.userInfo(userid).isUserType());
 							System.out.println("\n                ********   SUCCESSFULLY LOGGEDIN   ********\n");
+							
 							loginFlag = true;
 							break;
 						}
@@ -70,17 +87,17 @@ public class Main {
 			while(loginFlag) {
 		
 				if(loginFlag) {
-					System.out.println("------------->  HELLO " + user.getUserName().toUpperCase() + ", WELCOME TO THE TEST TAKER  <-------------");
+					System.out.println("------------->  HELLO " + user.getUserName() + ", WELCOME TO THE TEST TAKER  <-------------");
 					while(true) {
 						System.out.print("\n1] Menu							2] Logout \n\nEnter Here : ");
 						int loginChoise = sc.nextInt();
 						switch(loginChoise){
 							case 1 :
-								if(user.isUserType()) {
+								if(userDAO.userInfo(userid).isUserType()) {
 									// Test Maker
 									System.out.print("\n1] Profile\n2] Make A Test\n3] Tests Details\n"
-											+ "4] Test Results\n5] Add Default Test\n6] Delete Test\n"
-											+ "7] Modify Test\n\nEnter Here : ");
+											+ "4] Test Results\n5] Delete Test\n"
+											+ "6] Modify Test\n\nEnter Here : ");
 									int menuChoise = sc.nextInt();
 									switch(menuChoise) {
 										case 1:
@@ -94,32 +111,30 @@ public class Main {
 											// Test
 											TestMaker testMaker = new TestMaker();
 											Test test = testMaker.makeATest(user);
+											TestDAO testDAO = new TestDAO();
+											testDAO.addTest(test, userid);
 											testList.add(test);
-											user.setTestMake(test);
+//											user.setTestMake(test);
 											break;
 										case 3:
 											ShowTestDetails showTestDetails = new ShowTestDetails();
-											showTestDetails.show(user);
+											showTestDetails.show(user, userid);
 											break;
 										case 4:
 											showTestDetails = new ShowTestDetails();
-											showTestDetails.showTestReults(user);
+											showTestDetails.showTestReults(user, userid);
 											break;
 										case 5:
-											DefaultData defaultData = new DefaultData();
-											testList.add(defaultData.defaultTest(user));
-											break;
-										case 6:
 											TestMaker testMaker1 = new TestMaker();
-											Test testDeletion = testMaker1.deleteTest(testList, user);
+											Test testDeletion = testMaker1.deleteTest(testList, user, userid);
 											testList.remove(testDeletion);
 											user.getTestMake().remove(testDeletion);
 											
 											System.out.println("\n                ********   TEST SUCCESSFULLY DELETED   ********\n");
 											break;
-										case 7:
+										case 6:
 											UpdateTest updateTest = new UpdateTest();
-											updateTest.update(user);
+											updateTest.update(user, userid);
 											break;
 									}
 								
@@ -142,9 +157,9 @@ public class Main {
 											// Test
 											TestGiver testGiver = new TestGiver();
 											while(true) {
-												Test test = testGiver.getTest(testList);
+												Test test = testGiver.getTest();
 												if(test != null) {
-													testGiver.giveATest(test, user);
+													testGiver.giveATest(test, user, userid);
 													break;
 												}
 												else {
@@ -154,7 +169,7 @@ public class Main {
 											break;
 										case 3:
 											ShowTestDetails showTestDetails = new ShowTestDetails();
-											showTestDetails.show(user);
+											showTestDetails.show(user,userid);
 											break;
 										case 4:
 											DefaultData defaultData = new DefaultData();

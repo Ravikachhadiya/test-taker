@@ -13,6 +13,10 @@ public class User {
 	private List<Test> testMake = new ArrayList<Test>();
 	private Map<Test, List<Integer>> testMarks = new LinkedHashMap<Test, List<Integer>>();
 
+	
+	public User() {
+		super();
+	}
 	public User(String emailId, String userName, String password, boolean userType) {
 		super();
 		this.emailId = emailId;
@@ -20,8 +24,7 @@ public class User {
 		this.password = password;
 		this.userType = userType;
 	}
-	
-	
+		
 	public String getEmailId() {
 		return emailId;
 	}
@@ -47,7 +50,6 @@ public class User {
 		this.userType = userType;
 	}
 
-
 	public List<Test> getTestMake() {
 		return testMake;
 	}
@@ -64,7 +66,6 @@ public class User {
 		else
 			return null;
 	}
-
 
 	public void setTestMarks(Test test, List<Integer> marks) {
 		if(!this.userType)

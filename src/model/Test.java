@@ -14,6 +14,9 @@ public class Test {
 	private List<TestResult> testResults = new ArrayList<TestResult>();
 	
 
+	public Test() {
+		super();
+	}
 	public Test(User user, String id, String testTitle, int marks, List<String> question, List<List<String>> options,
 			List<Integer> answer) {
 		super();
